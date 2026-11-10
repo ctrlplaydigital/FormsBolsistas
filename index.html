@@ -76,7 +76,7 @@ input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 
         <h2 class="section-title">📋 Dados do Responsável</h2>
         <div class="form-row">
           <div class="form-group"><label>Data de Admissão <span class="required">*</span></label><input type="date" name="dataAdmissao" required></div>
-          <div class="form-group"><label>Celular do Responsável <span class="required">*</span></label><input type="tel" name="celularResponsavel" placeholder="(11) 99999-9999" required></div>
+          <div class="form-group"><label>Telefone/Celular do Responsável <span class="required">*</span></label><input type="tel" name="celularResponsavel" placeholder="(11) 99999-9999 ou +351 912 345 678" required></div>
         </div>
         <div class="form-group"><label>Nome Completo do Colaborador Responsável <span class="required">*</span></label><input type="text" name="nomeResponsavel" required></div>
         <div class="form-row">
@@ -100,7 +100,7 @@ input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 
         </div>
         <div class="form-group"><label>Endereço Completo <span class="required">*</span></label><textarea name="endereco" placeholder="Rua, número, bairro, cidade, estado, CEP" required></textarea></div>
         <div class="form-row">
-          <div class="form-group"><label>Celular do Bolsista</label><input type="tel" name="celularBolsista" placeholder="(11) 99999-9999"></div>
+          <div class="form-group"><label>Telefone/Celular do Bolsista</label><input type="tel" name="celularBolsista" placeholder="(11) 99999-9999 ou +351 912 345 678"></div>
           <div class="form-group"><label>E-mail do Bolsista <br> O email deve ser diferente do responsável <br> (Não usar email @cna) <span class="required">*</span></label><input type="email" name="emailBolsista" placeholder="email@exemplo.com" required></div>
         </div>
         <div class="form-group"><label>Necessidade Educacional Específica</label><textarea name="necessidadeEspecial" placeholder="Descreva se houver alguma necessidade especial"></textarea></div>
@@ -132,7 +132,7 @@ input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 
 <script>
 // ===== CONFIGURAÇÃO =====
 // Cole aqui a URL do Web App (termina em /exec)
-const API_URL = 'https://script.google.com/macros/s/AKfycbwZ9miyyZI5Z-HDqmcfxIyS75826Bzld25mWh3B_MY-x_dRpgCcwhqbTpMyCLxU-2rw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzzsO1fRzZigsBtYn1i7ayr5vnQizBd845uDRnlsZIRpwv5Q9Xj5r1IGxo3xdzoX0AX/exec';
 
 // ===== HELPERS =====
 const $ = id => document.getElementById(id);
@@ -262,6 +262,21 @@ function validarCPF(cpf) {
 }
 const validarEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
+// DDDs existentes no Brasil
+const DDDS = new Set('11 12 13 14 15 16 17 18 19 21 22 24 27 28 31 32 33 34 35 37 38 41 42 43 44 45 46 47 48 49 51 53 54 55 61 62 63 64 65 66 67 68 69 71 73 74 75 77 79 81 82 83 84 85 86 87 88 89 91 92 93 94 95 96 97 98 99'.split(' '));
+// Telefone: celular BR (11 díg.), fixo BR (10 díg.) ou internacional (começa com +)
+function validarTelefone(tel) {
+  const t = tel.trim();
+  let n = t.replace(/\D/g, '');
+  if (t.startsWith('+')) {
+    if (!n.startsWith('55')) return n.length >= 8 && n.length <= 15 && n[0] !== '0' && !/^(\d)\1+$/.test(n);
+    n = n.slice(2);                      // +55: valida como número brasileiro
+  }
+  if (n.length !== 10 && n.length !== 11) return false;
+  if (!DDDS.has(n.slice(0, 2)) || /^(\d)\1+$/.test(n.slice(2))) return false;
+  return n.length === 11 ? n[2] === '9' : /[2-5]/.test(n[2]);   // celular começa com 9; fixo com 2 a 5
+}
+
 // Mostra/remove a mensagem de erro logo abaixo do campo
 function setErro(el, msg) {
   let m = el.parentElement.querySelector(':scope > .erro-msg');
@@ -286,6 +301,8 @@ function erroDoCampo(el) {
       return validarCPF(v.replace(/\D/g, '')) ? '' : 'CPF inválido. Verifique o número informado.';
     case 'emailBolsista': case 'emailPedagogico':
       return validarEmail(v) ? '' : 'E-mail inválido. Verifique o endereço informado.';
+    case 'celularResponsavel': case 'celularBolsista':
+      return validarTelefone(v) ? '' : 'Telefone inválido. Use DDD + número, ex.: (11) 99999-9999 ou (11) 3333-4444. Para outro país, use + e o código, ex.: +351 912 345 678.';
     case 'dataAdmissao':
       return new Date(v) > new Date() ? 'A data de admissão não pode ser futura.' : '';
     case 'dataNascimento':
@@ -340,6 +357,7 @@ const dataBr = d => { if (!d) return ''; const p = d.split('-'); return p.length
 const fmtCPF = c => { const l = (c || '').replace(/\D/g, ''); return l.length === 11 ? l.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : (c || ''); };
 const fmtTel = t => {
   if (!t) return 'Não informado';
+  if (t.trim().startsWith('+')) return t;
   const l = t.replace(/\D/g, '');
   return l.length <= 10 ? l.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3') : l.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
 };
@@ -396,6 +414,10 @@ form.elements.cpf.addEventListener('input', e => {
 });
 
 function mascaraTelefone(e) {
+  if (e.target.value.trim().startsWith('+')) {   // internacional: apenas + e dígitos (até 15)
+    e.target.value = '+' + e.target.value.replace(/\D/g, '').slice(0, 15);
+    return;
+  }
   let v = e.target.value.replace(/\D/g, '').slice(0, 11);
   if (v.length > 10) v = v.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
   else if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
