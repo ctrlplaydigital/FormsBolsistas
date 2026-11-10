@@ -85,7 +85,7 @@ input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 
         </div>
         <div class="form-group"><label>Nome Completo do Colaborador Responsável <span class="required">*</span></label><input type="text" name="nomeResponsavel" required></div>
         <div class="form-row">
-          <div class="form-group"><label>E-mail do Responsável Pedagógico</label><input type="email" name="emailPedagogico" placeholder="email@exemplo.com"><div class="hint">Não usar e-mail @cna.</div></div>
+          <div class="form-group"><label>E-mail do Responsável Pedagógico</label><input type="email" name="emailPedagogico" placeholder="email@exemplo.com"><div class="hint">Não usar e-mail @cna. Deve ser diferente do e-mail do bolsista.</div></div>
           <div class="form-group"><label>Local de Trabalho/Departamento <span class="required">*</span></label><input type="text" name="localTrabalho" required></div>
         </div>
       </div>
@@ -308,7 +308,11 @@ function erroDoCampo(el) {
       return validarCPF(v.replace(/\D/g, '')) ? '' : 'CPF inválido. Verifique o número informado.';
     case 'emailBolsista': case 'emailPedagogico':
       if (!validarEmail(v)) return 'E-mail inválido. Verifique o endereço informado.';
-      return ehEmailCna(v) ? 'Não é permitido e-mail @cna. Use um e-mail pessoal.' : '';
+      if (ehEmailCna(v)) return 'Não é permitido e-mail @cna. Use um e-mail pessoal.';
+      const outro = form.elements[el.name === 'emailBolsista' ? 'emailPedagogico' : 'emailBolsista'].value.trim().toLowerCase();
+      if (outro && outro === v.toLowerCase())
+        return el.name === 'emailBolsista' ? 'Não pode ser igual ao e-mail do responsável pedagógico.' : 'Não pode ser igual ao e-mail do bolsista.';
+      return '';
     case 'celularResponsavel': case 'celularBolsista':
       return validarTelefone(v) ? '' : 'Telefone inválido. Use DDD + número, ex.: (11) 99999-9999 ou (11) 3333-4444. Para outro país, use + e o código, ex.: +351 912 345 678.';
     case 'dataAdmissao':
@@ -434,6 +438,20 @@ function mascaraTelefone(e) {
 }
 form.elements.celularResponsavel.addEventListener('input', mascaraTelefone);
 form.elements.celularBolsista.addEventListener('input', mascaraTelefone);
+
+const EMAILS = ['emailBolsista', 'emailPedagogico'];
+const emailsIguais = () => {
+  const a = form.elements.emailBolsista.value.trim().toLowerCase(), b = form.elements.emailPedagogico.value.trim().toLowerCase();
+  return a !== '' && a === b;
+};
+['input', 'change', 'focusout'].forEach(ev => form.addEventListener(ev, e => {
+  if (!EMAILS.includes(e.target.name)) return;
+  EMAILS.forEach(n => {
+    const el = form.elements[n];
+    // digitando: só reavalia se estiverem iguais ou se o campo já tinha erro (evita "e-mail inválido" no meio da digitação)
+    if (ev === 'input' ? (emailsIguais() || el.classList.contains('invalido')) : el.value.trim()) setErro(el, erroDoCampo(el));
+  });
+}));
 
 // Ao sair do campo: valida. Enquanto digita: só limpa o erro quando for corrigido.
 form.addEventListener('focusout', e => { if (e.target.name) setErro(e.target, erroDoCampo(e.target)); });
