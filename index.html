@@ -31,14 +31,24 @@ button{flex:1;padding:15px 30px;border:none;border-radius:8px;font-size:18px;fon
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(233,30,99,.3)}
 .btn-secondary{background:#e0e0e0;color:#666}
 .btn-secondary:hover{background:#d0d0d0}
+input.invalido,select.invalido,textarea.invalido{border-color:#d32f2f;background:#fff8f8}
+input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 0 0 3px rgba(211,47,47,.15)}
+.erro-msg{color:#d32f2f;font-size:14px;font-weight:500;margin-top:6px}
+.erro-msg::before{content:'⚠ '}
 .view{display:none}
 .view.active{display:block}
 .loading{text-align:center;padding:40px}
 .spinner{width:50px;height:50px;border:4px solid #e0e0e0;border-top-color:#E91E63;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.alert{padding:20px;border-radius:8px;margin-bottom:30px;display:none}
-.alert-error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
-.alert-success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.modal-overlay{position:fixed;inset:0;background:rgba(46,49,146,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:1000;animation:fade .2s ease-out}
+.modal{background:#fff;max-width:440px;width:100%;border-radius:16px;padding:32px 28px 28px;text-align:center;border-top:6px solid #E91E63;box-shadow:0 20px 40px rgba(0,0,0,.3);animation:pop .25s ease-out}
+.modal-icone{font-size:44px;line-height:1;margin-bottom:12px}
+.modal h3{color:#2E3192;font-size:1.4em;margin-bottom:10px}
+.modal p{color:#555;margin-bottom:24px}
+.modal-btns{display:flex;gap:12px}
+.modal-btns button{padding:12px 20px;font-size:16px}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{transform:scale(.9) translateY(10px);opacity:0}to{transform:none;opacity:1}}
 .aviso{background:#fff3cd;border-left:5px solid #ffc107;padding:25px;border-radius:8px;margin-bottom:30px;color:#856404}
 .aviso h3{margin-bottom:10px;font-size:18px}
 .hero{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#E91E63 0%,#2E3192 100%);border-radius:16px;margin-bottom:30px;color:#fff}
@@ -59,11 +69,9 @@ button{flex:1;padding:15px 30px;border:none;border-radius:8px;font-size:18px;fon
     <p class="subtitle">Preencha os dados abaixo para realizar sua inscrição</p>
   </div>
 
-  <div class="alert alert-error" id="alertError"></div>
-
   <!-- TELA 1: FORMULÁRIO -->
   <div class="view active" id="viewForm">
-    <form id="formularioInscricao">
+    <form id="formularioInscricao" novalidate>
       <div class="form-section">
         <h2 class="section-title">📋 Dados do Responsável</h2>
         <div class="form-row">
@@ -140,15 +148,36 @@ function mostrarTela(id) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-let alertTimer;
-function mostrarAlerta(msg) {
-  const a = $('alertError');
-  a.innerHTML = esc(msg).replace(/\n/g, '<br>');
-  a.style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  clearTimeout(alertTimer);
-  alertTimer = setTimeout(() => a.style.display = 'none', 10000);
+// Pop-up com a identidade visual do site. Retorna Promise<boolean> (true = botão principal)
+function abrirModal({ icone, titulo, msg, ok = 'OK', cancelar = '' }) {
+  return new Promise(resolve => {
+    const antes = document.activeElement;
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay';
+    ov.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitulo">
+      <div class="modal-icone">${icone}</div><h3 id="mTitulo">${esc(titulo)}</h3>
+      <p>${esc(msg).replace(/\n/g, '<br>')}</p>
+      <div class="modal-btns">${cancelar ? `<button type="button" class="btn-secondary" data-r="0">${esc(cancelar)}</button>` : ''}
+      <button type="button" class="btn-primary" data-r="1">${esc(ok)}</button></div></div>`;
+    const fechar = r => {
+      document.removeEventListener('keydown', tecla);
+      ov.remove();
+      if (antes && antes.focus) antes.focus();
+      resolve(r);
+    };
+    const tecla = e => { if (e.key === 'Escape') fechar(false); };
+    ov.addEventListener('click', e => {
+      if (e.target === ov) fechar(false);
+      const b = e.target.closest('button[data-r]');
+      if (b) fechar(b.dataset.r === '1');
+    });
+    document.addEventListener('keydown', tecla);
+    document.body.appendChild(ov);
+    ov.querySelector('.btn-primary').focus();
+  });
 }
+const mostrarAlerta = (msg, titulo = 'Atenção', icone = '⚠️') => abrirModal({ icone, titulo, msg });
+const confirmar = (msg, titulo, icone, ok = 'Confirmar') => abrirModal({ icone, titulo, msg, ok, cancelar: 'Cancelar' });
 
 // Chamadas à API do Apps Script
 // POST usa text/plain para evitar preflight CORS (que o Apps Script não suporta)
@@ -187,6 +216,7 @@ async function carregarNiveis() {
 async function carregarTurmas() {
   const nivel = $('nivel').value, sel = $('turma'), info = $('turmaInfo');
   info.style.display = 'none';
+  setErro($('turma'), '');
   if (!nivel) { sel.innerHTML = '<option value="">Primeiro selecione o nível</option>'; return; }
   sel.innerHTML = '<option value="">Carregando turmas...</option>';
   sel.disabled = true;
@@ -232,25 +262,58 @@ function validarCPF(cpf) {
 }
 const validarEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
+// Mostra/remove a mensagem de erro logo abaixo do campo
+function setErro(el, msg) {
+  let m = el.parentElement.querySelector(':scope > .erro-msg');
+  if (!msg) {
+    if (m) m.remove();
+    el.classList.remove('invalido'); el.removeAttribute('aria-invalid');
+    return;
+  }
+  if (!m) { m = document.createElement('div'); m.className = 'erro-msg'; m.setAttribute('role', 'alert'); el.insertAdjacentElement('afterend', m); }
+  m.textContent = msg;
+  el.classList.add('invalido'); el.setAttribute('aria-invalid', 'true');
+}
+const limparErros = () => form.querySelectorAll('.invalido').forEach(el => setErro(el, ''));
+
+// Retorna a mensagem de erro do campo ('' = ok)
+function erroDoCampo(el) {
+  const v = el.value.trim();
+  if (el.required && !v) return el.tagName === 'SELECT' ? 'Selecione uma opção.' : 'Preencha este campo.';
+  if (!v) return '';
+  switch (el.name) {
+    case 'cpf':
+      return validarCPF(v.replace(/\D/g, '')) ? '' : 'CPF inválido. Verifique o número informado.';
+    case 'emailBolsista': case 'emailPedagogico':
+      return validarEmail(v) ? '' : 'E-mail inválido. Verifique o endereço informado.';
+    case 'dataAdmissao':
+      return new Date(v) > new Date() ? 'A data de admissão não pode ser futura.' : '';
+    case 'dataNascimento':
+      if (new Date(v) > new Date()) return 'A data de nascimento não pode ser futura.';
+      return new Date().getFullYear() - new Date(v).getFullYear() < 4 ? 'O bolsista deve ter pelo menos 4 anos de idade.' : '';
+  }
+  return '';
+}
+
+// Valida tudo de uma vez, marca todos os campos com erro e rola até o primeiro
 function validarFormulario() {
-  const campo = n => form.elements[n];
-  if (!validarCPF(campo('cpf').value.replace(/\D/g, ''))) {
-    mostrarAlerta('CPF inválido. Por favor, verifique o número informado.'); campo('cpf').focus(); return false;
-  }
-  if (new Date().getFullYear() - new Date(campo('dataNascimento').value).getFullYear() < 4) {
-    mostrarAlerta('O bolsista deve ter pelo menos 4 anos de idade.'); campo('dataNascimento').focus(); return false;
-  }
-  if (!validarEmail(campo('emailBolsista').value)) {
-    mostrarAlerta('E-mail inválido. Por favor, verifique o endereço informado.'); campo('emailBolsista').focus(); return false;
-  }
-  return true;
+  let primeiro = null;
+  [...form.elements].filter(el => el.name).forEach(el => {
+    const msg = erroDoCampo(el);
+    setErro(el, msg);
+    if (msg && !primeiro) primeiro = el;
+  });
+  if (!primeiro) return true;
+  primeiro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  primeiro.focus({ preventScroll: true });
+  return false;
 }
 
 // ===== ENVIO =====
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!validarFormulario()) return;
-  if (!confirm('Confirma o envio da inscrição?\n\nApós confirmar, não será possível alterar os dados.')) return;
+  if (!(await confirmar('Confirma o envio da inscrição?\n\nApós confirmar, não será possível alterar os dados.', 'Confirmar inscrição', '📨', 'Enviar'))) return;
 
   const dados = {};
   for (const [k, v] of new FormData(form).entries()) dados[k] = v.trim();
@@ -307,7 +370,7 @@ function mostrarConfirmacao(protocolo, d) {
 }
 
 function novaInscricao() {
-  form.reset();
+  form.reset(); limparErros();
   $('turmaInfo').style.display = 'none';
   $('turma').innerHTML = '<option value="">Primeiro selecione o nível</option>';
   carregarNiveis();  // atualiza vagas
@@ -317,12 +380,11 @@ function novaInscricao() {
 // ===== EVENTOS E MÁSCARAS =====
 $('nivel').addEventListener('change', carregarTurmas);
 $('turma').addEventListener('change', mostrarInfoTurma);
-$('btnLimpar').addEventListener('click', () => {
-  if (!confirm('Deseja realmente limpar todos os campos do formulário?')) return;
-  form.reset();
+$('btnLimpar').addEventListener('click', async () => {
+  if (!(await confirmar('Deseja realmente limpar todos os campos do formulário?', 'Limpar formulário', '🧹', 'Limpar'))) return;
+  form.reset(); limparErros();
   $('turmaInfo').style.display = 'none';
   $('turma').innerHTML = '<option value="">Primeiro selecione o nível</option>';
-  $('alertError').style.display = 'none';
 });
 
 form.elements.cpf.addEventListener('input', e => {
@@ -343,10 +405,11 @@ function mascaraTelefone(e) {
 form.elements.celularResponsavel.addEventListener('input', mascaraTelefone);
 form.elements.celularBolsista.addEventListener('input', mascaraTelefone);
 
-[['dataAdmissao', 'A data de admissão não pode ser futura.'], ['dataNascimento', 'A data de nascimento não pode ser futura.']]
-  .forEach(([nome, msg]) => form.elements[nome].addEventListener('change', e => {
-    if (new Date(e.target.value) > new Date()) { mostrarAlerta(msg); e.target.value = ''; }
-  }));
+// Ao sair do campo: valida. Enquanto digita: só limpa o erro quando for corrigido.
+form.addEventListener('focusout', e => { if (e.target.name) setErro(e.target, erroDoCampo(e.target)); });
+['input', 'change'].forEach(ev => form.addEventListener(ev, e => {
+  if (e.target.name && (e.target.classList.contains('invalido') || ev === 'change')) setErro(e.target, erroDoCampo(e.target));
+}));
 
 if (API_URL.startsWith('COLE_AQUI')) {
   mostrarAlerta('Configure a constante API_URL no index.html com a URL do seu Web App.');
