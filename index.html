@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário de Inscrição - Cursos</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;color:#333;background:linear-gradient(135deg,#E91E63 0%,#2E3192 100%);min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto;background:#fff;padding:40px;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,.1)}
+.header{text-align:center;margin-bottom:40px}
+h1{color:#2E3192;font-size:2.5em;margin-bottom:10px}
+.header-logo{display:flex;align-items:center;justify-content:center;gap:15px;margin-bottom:20px}
+.logo-cna{color:#E91E63;font-weight:800;font-size:2.8em;letter-spacing:-2px}
+.logo-digital{color:#2E3192;font-weight:700;font-size:2.2em}
+.subtitle{color:#666;font-size:1.1em}
+.form-section{margin-bottom:30px}
+.section-title{font-size:1.3em;color:#2E3192;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #E91E63}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.form-group{margin-bottom:20px}
+label{display:block;margin-bottom:8px;color:#555;font-weight:500}
+.required{color:#E91E63}
+input,select,textarea{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:16px;font-family:inherit;transition:border-color .3s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#E91E63;box-shadow:0 0 0 3px rgba(233,30,99,.1)}
+textarea{resize:vertical;min-height:80px}
+.turma-info{background:#f8f9fa;padding:15px;border-radius:8px;margin-top:10px;border-left:4px solid #E91E63;display:none}
+.turma-info .grid,.card .grid{display:grid;grid-template-columns:auto 1fr;gap:10px 15px}
+.button-container{display:flex;gap:15px;margin-top:40px}
+button{flex:1;padding:15px 30px;border:none;border-radius:8px;font-size:18px;font-weight:600;cursor:pointer;transition:all .3s}
+.btn-primary{background:linear-gradient(135deg,#E91E63 0%,#2E3192 100%);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(233,30,99,.3)}
+.btn-secondary{background:#e0e0e0;color:#666}
+.btn-secondary:hover{background:#d0d0d0}
+.view{display:none}
+.view.active{display:block}
+.loading{text-align:center;padding:40px}
+.spinner{width:50px;height:50px;border:4px solid #e0e0e0;border-top-color:#E91E63;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.alert{padding:20px;border-radius:8px;margin-bottom:30px;display:none}
+.alert-error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.alert-success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.aviso{background:#fff3cd;border-left:5px solid #ffc107;padding:25px;border-radius:8px;margin-bottom:30px;color:#856404}
+.aviso h3{margin-bottom:10px;font-size:18px}
+.hero{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#E91E63 0%,#2E3192 100%);border-radius:16px;margin-bottom:30px;color:#fff}
+.hero h2{font-size:2em;margin:10px 0 20px}
+.hero .prot{background:rgba(255,255,255,.2);padding:20px;border-radius:12px;font-size:34px;font-weight:800;letter-spacing:3px}
+.card{background:#fff;padding:30px;border-radius:12px;margin-bottom:20px;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.card h2{color:#2E3192;font-size:1.5em;margin-bottom:20px;padding-bottom:15px;border-bottom:3px solid #E91E63}
+.card .grid{gap:15px}
+.card .k{color:#666;font-weight:600}
+@media(max-width:768px){.container{padding:20px}h1{font-size:2em}.form-row{grid-template-columns:1fr}.hero .prot{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-logo"><span class="logo-cna">CNA</span><span class="logo-digital">Digital School</span></div>
+    <h1>Formulário de Inscrição</h1>
+    <p class="subtitle">Preencha os dados abaixo para realizar sua inscrição</p>
+  </div>
+
+  <div class="alert alert-error" id="alertError"></div>
+
+  <!-- TELA 1: FORMULÁRIO -->
+  <div class="view active" id="viewForm">
+    <form id="formularioInscricao">
+      <div class="form-section">
+        <h2 class="section-title">📋 Dados do Responsável</h2>
+        <div class="form-row">
+          <div class="form-group"><label>Data de Admissão <span class="required">*</span></label><input type="date" name="dataAdmissao" required></div>
+          <div class="form-group"><label>Celular do Responsável <span class="required">*</span></label><input type="tel" name="celularResponsavel" placeholder="(11) 99999-9999" required></div>
+        </div>
+        <div class="form-group"><label>Nome Completo do Colaborador Responsável <span class="required">*</span></label><input type="text" name="nomeResponsavel" required></div>
+        <div class="form-row">
+          <div class="form-group"><label>E-mail do Responsável Pedagógico <br> (Não usar email @cna)</label><input type="email" name="emailPedagogico" placeholder="email@exemplo.com"></div>
+          <div class="form-group"><label>Local de Trabalho/Departamento <span class="required">*</span></label><input type="text" name="localTrabalho" required></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="section-title">👤 Dados do Bolsista</h2>
+        <div class="form-group"><label>Nome Completo do Bolsista <span class="required">*</span></label><input type="text" name="nomeBolsista" required></div>
+        <div class="form-row">
+          <div class="form-group"><label>Gênero <span class="required">*</span></label>
+            <select name="genero" required><option value="">Selecione...</option><option>Masculino</option><option>Feminino</option><option>Outro</option><option>Prefiro não informar</option></select></div>
+          <div class="form-group"><label>Estado Civil <span class="required">*</span></label>
+            <select name="estadoCivil" required><option value="">Selecione...</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option><option>União Estável</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>CPF do Bolsista <span class="required">*</span></label><input type="text" name="cpf" placeholder="000.000.000-00" maxlength="14" required></div>
+          <div class="form-group"><label>Data de Nascimento <span class="required">*</span></label><input type="date" name="dataNascimento" required></div>
+        </div>
+        <div class="form-group"><label>Endereço Completo <span class="required">*</span></label><textarea name="endereco" placeholder="Rua, número, bairro, cidade, estado, CEP" required></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Celular do Bolsista</label><input type="tel" name="celularBolsista" placeholder="(11) 99999-9999"></div>
+          <div class="form-group"><label>E-mail do Bolsista <br> O email deve ser diferente do responsável <br> (Não usar email @cna) <span class="required">*</span></label><input type="email" name="emailBolsista" placeholder="email@exemplo.com" required></div>
+        </div>
+        <div class="form-group"><label>Necessidade Educacional Específica</label><textarea name="necessidadeEspecial" placeholder="Descreva se houver alguma necessidade especial"></textarea></div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="section-title">🎓 Seleção de Turma</h2>
+        <div class="form-group"><label>Nível do Curso <span class="required">*</span></label>
+          <select id="nivel" name="nivel" required><option value="">Carregando níveis...</option></select></div>
+        <div class="form-group"><label>Turma Disponível (Online e Presencial) <span class="required">*</span></label>
+          <select id="turma" name="turma" required><option value="">Primeiro selecione o nível</option></select>
+          <div id="turmaInfo" class="turma-info"></div></div>
+      </div>
+
+      <div class="button-container">
+        <button type="button" class="btn-secondary" id="btnLimpar">Limpar Formulário</button>
+        <button type="submit" class="btn-primary">Enviar Inscrição</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- TELA 2: CARREGANDO -->
+  <div class="view loading" id="viewLoading"><div class="spinner"></div><p>Processando sua inscrição...</p></div>
+
+  <!-- TELA 3: CONFIRMAÇÃO -->
+  <div class="view" id="viewConfirm"></div>
+</div>
+
+<script>
+// ===== CONFIGURAÇÃO =====
+// Cole aqui a URL do Web App (termina em /exec)
+const API_URL = 'https://script.google.com/macros/s/AKfycbwZ9miyyZI5Z-HDqmcfxIyS75826Bzld25mWh3B_MY-x_dRpgCcwhqbTpMyCLxU-2rw/exec';
+
+// ===== HELPERS =====
+const $ = id => document.getElementById(id);
+const form = $('formularioInscricao');
+let turmasData = {};
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const vagasTxt = n => n === 1 ? '1 vaga' : n + ' vagas';
+
+// Troca de tela (sem recarregar a página)
+function mostrarTela(id) {
+  ['viewForm', 'viewLoading', 'viewConfirm'].forEach(v => $(v).classList.toggle('active', v === id));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+let alertTimer;
+function mostrarAlerta(msg) {
+  const a = $('alertError');
+  a.innerHTML = esc(msg).replace(/\n/g, '<br>');
+  a.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  clearTimeout(alertTimer);
+  alertTimer = setTimeout(() => a.style.display = 'none', 10000);
+}
+
+// Chamadas à API do Apps Script
+// POST usa text/plain para evitar preflight CORS (que o Apps Script não suporta)
+async function apiGet(params) {
+  const r = await fetch(API_URL + '?' + new URLSearchParams(params));
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.mensagem || 'Erro na API');
+  return j.dados;
+}
+async function apiPost(dados) {
+  const r = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(dados)
+  });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.mensagem || 'Erro na API');
+  return j.resultado;
+}
+
+// ===== NÍVEIS E TURMAS =====
+async function carregarNiveis() {
+  const sel = $('nivel');
+  try {
+    const niveis = await apiGet({ action: 'niveis' });
+    if (!niveis.length) { sel.innerHTML = '<option value="">Nenhum nível disponível</option>'; return; }
+    sel.innerHTML = '<option value="">Selecione o nível...</option>' +
+      niveis.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  } catch (e) {
+    console.error(e);
+    sel.innerHTML = '<option value="">Erro ao carregar níveis</option>';
+    mostrarAlerta('Erro ao carregar níveis. Por favor, recarregue a página.');
+  }
+}
+
+async function carregarTurmas() {
+  const nivel = $('nivel').value, sel = $('turma'), info = $('turmaInfo');
+  info.style.display = 'none';
+  if (!nivel) { sel.innerHTML = '<option value="">Primeiro selecione o nível</option>'; return; }
+  sel.innerHTML = '<option value="">Carregando turmas...</option>';
+  sel.disabled = true;
+  try {
+    const turmas = await apiGet({ action: 'turmas', nivel });
+    sel.disabled = false;
+    if (!turmas.length) { sel.innerHTML = '<option value="">Nenhuma turma disponível para este nível</option>'; return; }
+    turmasData = {};
+    sel.innerHTML = '<option value="">Selecione a turma...</option>' + turmas.map(t => {
+      turmasData[t.codigo] = t;
+      return `<option value="${esc(t.codigo)}">${esc(t.codigo)} - ${esc(t.horario)} (${vagasTxt(t.totalVagas)})</option>`;
+    }).join('');
+  } catch (e) {
+    console.error(e);
+    sel.disabled = false;
+    sel.innerHTML = '<option value="">Erro ao carregar turmas</option>';
+    mostrarAlerta('Erro ao carregar turmas. Por favor, tente novamente.');
+  }
+}
+
+function mostrarInfoTurma() {
+  const t = turmasData[$('turma').value], info = $('turmaInfo');
+  if (!t) { info.style.display = 'none'; return; }
+  info.innerHTML = `<div class="grid">
+    <strong>📅 Horário:</strong><span>${esc(t.horario)}</span>
+    <strong>🗓️ Início:</strong><span>${esc(t.dataInicio)}</span>
+    <strong>🏁 Término:</strong><span>${esc(t.dataTermino)}</span>
+    <strong>💺 Total de Vagas:</strong><span>${vagasTxt(t.totalVagas)}</span></div>`;
+  info.style.display = 'block';
+}
+
+// ===== VALIDAÇÕES =====
+function validarCPF(cpf) {
+  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+  for (const n of [9, 10]) {
+    let soma = 0;
+    for (let i = 0; i < n; i++) soma += +cpf[i] * (n + 1 - i);
+    let resto = (soma * 10) % 11;
+    if (resto === 10) resto = 0;
+    if (resto !== +cpf[n]) return false;
+  }
+  return true;
+}
+const validarEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+function validarFormulario() {
+  const campo = n => form.elements[n];
+  if (!validarCPF(campo('cpf').value.replace(/\D/g, ''))) {
+    mostrarAlerta('CPF inválido. Por favor, verifique o número informado.'); campo('cpf').focus(); return false;
+  }
+  if (new Date().getFullYear() - new Date(campo('dataNascimento').value).getFullYear() < 4) {
+    mostrarAlerta('O bolsista deve ter pelo menos 4 anos de idade.'); campo('dataNascimento').focus(); return false;
+  }
+  if (!validarEmail(campo('emailBolsista').value)) {
+    mostrarAlerta('E-mail inválido. Por favor, verifique o endereço informado.'); campo('emailBolsista').focus(); return false;
+  }
+  return true;
+}
+
+// ===== ENVIO =====
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validarFormulario()) return;
+  if (!confirm('Confirma o envio da inscrição?\n\nApós confirmar, não será possível alterar os dados.')) return;
+
+  const dados = {};
+  for (const [k, v] of new FormData(form).entries()) dados[k] = v.trim();
+
+  mostrarTela('viewLoading');
+  try {
+    const r = await apiPost(dados);
+    if (r.sucesso) {
+      mostrarConfirmacao(r.protocolo, r.dadosCompletos);
+    } else {
+      mostrarTela('viewForm');
+      mostrarAlerta(r.mensagem);
+      if (r.mensagem.includes('vagas')) carregarTurmas();
+    }
+  } catch (err) {
+    console.error(err);
+    mostrarTela('viewForm');
+    mostrarAlerta('Erro ao processar inscrição. Por favor, tente novamente.');
+  }
+});
+
+// ===== TELA DE CONFIRMAÇÃO =====
+const dataBr = d => { if (!d) return ''; const p = d.split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d; };
+const fmtCPF = c => { const l = (c || '').replace(/\D/g, ''); return l.length === 11 ? l.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : (c || ''); };
+const fmtTel = t => {
+  if (!t) return 'Não informado';
+  const l = t.replace(/\D/g, '');
+  return l.length <= 10 ? l.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3') : l.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+};
+const card = (titulo, linhas) => `<div class="card"><h2>${titulo}</h2><div class="grid">` +
+  linhas.filter(l => l[1]).map(l => `<div class="k">${l[0]}</div><div>${esc(l[1])}</div>`).join('') + '</div></div>';
+
+function mostrarConfirmacao(protocolo, d) {
+  const t = d.turma, b = d.bolsista, r = d.responsavel;
+  $('viewConfirm').innerHTML = `
+    <div class="aviso">
+      <h3>📸 IMPORTANTE: Guarde seu Comprovante</h3>
+      <p><strong>Tire um PRINT desta tela agora</strong> e guarde como comprovante da sua inscrição.<br>
+      Anote o número do protocolo: <strong>${esc(protocolo)}</strong><br>
+      Você receberá um e-mail de confirmação em breve.</p>
+    </div>
+    <div class="hero"><div style="font-size:60px">✅</div><h2>INSCRIÇÃO CONFIRMADA!</h2>
+      <p style="opacity:.9">SEU PROTOCOLO:</p><div class="prot">${esc(protocolo)}</div></div>
+    ${card('📚 Informações do Curso', [['🎯 Nível:', t.nivel], ['🏷️ Turma:', t.codigo], ['⏰ Horário:', t.horario],
+      ['📅 Início:', t.dataInicio], ['🏁 Término:', t.dataTermino]])}
+    ${card('👤 Dados do Bolsista', [['📝 Nome:', b.nome], ['🆔 CPF:', fmtCPF(b.cpf)], ['📧 E-mail:', b.email],
+      ['📱 Celular:', fmtTel(b.celular)], ['📅 Nascimento:', dataBr(b.dataNascimento)], ['👥 Gênero:', b.genero],
+      ['💒 Estado Civil:', b.estadoCivil], ['📍 Endereço:', b.endereco], ['♿ Necessidade Especial:', b.necessidadeEspecial]])}
+    ${card('👨‍💼 Responsável', [['📝 Nome:', r.nome], ['📱 Celular:', fmtTel(r.celular)], ['🏢 Departamento:', r.localTrabalho],
+      ['📅 Data Admissão:', dataBr(r.dataAdmissao)], ['📧 E-mail Pedagógico:', r.emailPedagogico]])}
+    <div class="button-container"><button type="button" class="btn-primary" id="btnNova">Fazer nova inscrição</button></div>`;
+  $('btnNova').addEventListener('click', novaInscricao);
+  mostrarTela('viewConfirm');
+}
+
+function novaInscricao() {
+  form.reset();
+  $('turmaInfo').style.display = 'none';
+  $('turma').innerHTML = '<option value="">Primeiro selecione o nível</option>';
+  carregarNiveis();  // atualiza vagas
+  mostrarTela('viewForm');
+}
+
+// ===== EVENTOS E MÁSCARAS =====
+$('nivel').addEventListener('change', carregarTurmas);
+$('turma').addEventListener('change', mostrarInfoTurma);
+$('btnLimpar').addEventListener('click', () => {
+  if (!confirm('Deseja realmente limpar todos os campos do formulário?')) return;
+  form.reset();
+  $('turmaInfo').style.display = 'none';
+  $('turma').innerHTML = '<option value="">Primeiro selecione o nível</option>';
+  $('alertError').style.display = 'none';
+});
+
+form.elements.cpf.addEventListener('input', e => {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+  if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+  else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+  e.target.value = v;
+});
+
+function mascaraTelefone(e) {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+  if (v.length > 10) v = v.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  else if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+  else if (v.length > 2) v = v.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+  e.target.value = v;
+}
+form.elements.celularResponsavel.addEventListener('input', mascaraTelefone);
+form.elements.celularBolsista.addEventListener('input', mascaraTelefone);
+
+[['dataAdmissao', 'A data de admissão não pode ser futura.'], ['dataNascimento', 'A data de nascimento não pode ser futura.']]
+  .forEach(([nome, msg]) => form.elements[nome].addEventListener('change', e => {
+    if (new Date(e.target.value) > new Date()) { mostrarAlerta(msg); e.target.value = ''; }
+  }));
+
+if (API_URL.startsWith('COLE_AQUI')) {
+  mostrarAlerta('Configure a constante API_URL no index.html com a URL do seu Web App.');
+} else {
+  carregarNiveis();
+}
+</script>
+</body>
+</html>
