@@ -24,6 +24,38 @@ label{display:block;margin-bottom:6px;color:#444;font-size:.95em;font-weight:600
 .check{display:flex;align-items:center;gap:10px;background:#f8f9fa;border-left:4px solid #E91E63;border-radius:8px;padding:12px 14px;margin-bottom:20px;font-weight:500;cursor:pointer}
 input[type=checkbox]{width:20px;height:20px;padding:0;flex:none;cursor:pointer;accent-color:#E91E63}
 .travado{background-color:#f1f2f6 !important;color:#666;pointer-events:none}
+.form-group{position:relative}
+.dp{position:absolute;left:0;z-index:50;width:100%;max-width:340px;background:#fff;border:2px solid #E91E63;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.2);padding:12px}
+.dp[hidden]{display:none}
+.dp-topo{display:flex;align-items:center;gap:10px;margin-bottom:10px;color:#2E3192}
+.dp-grid{display:grid;gap:6px;position:relative}
+.dp-grid.anos{grid-template-columns:repeat(4,1fr);max-height:240px;overflow-y:auto}
+.dp-grid.meses{grid-template-columns:repeat(3,1fr)}
+.dp-grid.dias{grid-template-columns:repeat(7,1fr)}
+.dp button{flex:none;padding:9px 0;font-size:15px;font-weight:600;background:#f3f4f8;color:#333;border-radius:8px}
+.dp button:hover:not(:disabled){background:#E91E63;color:#fff;transform:none;box-shadow:none}
+.dp button.sel{background:#2E3192;color:#fff}
+.dp button:disabled{opacity:.3;cursor:not-allowed}
+.dp .dp-voltar{background:none;color:#E91E63;padding:4px 8px}
+.dp .dp-voltar:hover:not(:disabled){background:#fde7ef;color:#E91E63}
+.cs{position:relative}
+.cs select{position:absolute;left:0;top:0;width:1px;height:1px;padding:0;border:0;opacity:0;pointer-events:none}
+.cs-btn{position:relative;display:block;width:100%;height:48px;flex:none;padding:0 44px 0 12px;border:2px solid #e0e0e0;border-radius:8px;background:#fff;color:#333;font-size:16px;font-weight:400;text-align:left;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:border-color .3s,box-shadow .3s}
+.cs-btn.vazio{color:#8a8f98}
+.cs-btn::after{content:'';position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid #2E3192;border-bottom:2px solid #2E3192;transform:translateY(-70%) rotate(45deg);transition:transform .2s}
+.cs.aberto .cs-btn::after{transform:translateY(-30%) rotate(-135deg)}
+.cs-btn:focus,.cs.aberto .cs-btn{outline:none;border-color:#E91E63;box-shadow:0 0 0 3px rgba(233,30,99,.1)}
+.cs-btn:disabled{background:#f1f2f6;color:#777;cursor:not-allowed}
+.cs select.invalido ~ .cs-btn{border-color:#d32f2f;background-color:#fff8f8}
+.cs select.invalido ~ .cs-btn:focus{box-shadow:0 0 0 3px rgba(211,47,47,.15)}
+.cs-list{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:60;max-height:260px;overflow-y:auto;margin:0;padding:6px;list-style:none;background:#fff;border:2px solid #E91E63;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.2)}
+.cs-list[hidden]{display:none}
+.cs.acima .cs-list{top:auto;bottom:calc(100% + 6px)}
+.cs-list li{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:8px;color:#333;line-height:1.35;cursor:pointer}
+.cs-list li.ativo{background:#fde7ef}
+.cs-list li[aria-selected=true]{color:#2E3192;font-weight:600}
+.cs-list li[aria-selected=true]::after{content:'✓';color:#E91E63}
+.cs-list li.vazio-msg{color:#8a8f98;cursor:default}
 .hint{font-size:13px;color:#777;line-height:1.4;margin-top:6px}
 .required{color:#E91E63}
 input,select,textarea{width:100%;padding:12px;background:#fff;color:#333;line-height:1.4;border:2px solid #e0e0e0;border-radius:8px;font-size:16px;font-family:inherit;transition:border-color .3s}
@@ -96,7 +128,7 @@ input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 
         </div>
         <div class="form-row">
           <div class="form-group"><label>CPF do Responsável <span class="required">*</span></label><input type="text" name="cpfResponsavel" placeholder="000.000.000-00" maxlength="14" required></div>
-          <div class="form-group"><label>Data de Nascimento <span class="required">*</span></label><input type="date" name="dataNascimentoResponsavel" required></div>
+          <div class="form-group"><label>Data de Nascimento <span class="required">*</span></label><input type="text" name="dataNascimentoResponsavel" class="dp-input" placeholder="dd/mm/aaaa" inputmode="none" autocomplete="off" maxlength="10" required></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>E-mail do Responsável Pedagógico</label><input type="email" name="emailPedagogico" placeholder="email@exemplo.com"><div class="hint">Não usar e-mail @cna.</div></div>
@@ -119,7 +151,7 @@ input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 
         </div>
         <div class="form-row">
           <div class="form-group"><label>CPF do Bolsista <span class="required">*</span></label><input type="text" name="cpf" placeholder="000.000.000-00" maxlength="14" required></div>
-          <div class="form-group"><label>Data de Nascimento <span class="required">*</span></label><input type="date" name="dataNascimento" required></div>
+          <div class="form-group"><label>Data de Nascimento <span class="required">*</span></label><input type="text" name="dataNascimento" class="dp-input" placeholder="dd/mm/aaaa" inputmode="none" autocomplete="off" maxlength="10" required></div>
         </div>
         <div id="endBolsista"></div>
         <div class="form-row">
@@ -296,6 +328,19 @@ function mostrarInfoTurma() {
   info.style.display = 'block';
 }
 
+// ===== DATAS DE NASCIMENTO =====
+const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const hoje = new Date();
+const DATA_MAX = new Date(hoje.getFullYear() - 4, hoje.getMonth(), hoje.getDate());   // idade mínima: 4 anos
+const pad = n => String(n).padStart(2, '0');
+function parseBR(t) {   // 'dd/mm/aaaa' -> Date (ou null se não existir, ex.: 31/02/2012)
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(t);
+  if (!m) return null;
+  const a = +m[3], mo = +m[2], d = +m[1], dt = new Date(a, mo - 1, d);
+  return dt.getFullYear() === a && dt.getMonth() === mo - 1 && dt.getDate() === d ? dt : null;
+}
+const isoDeBR = t => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(t); return m ? `${m[3]}-${m[2]}-${m[1]}` : t; };
+
 // ===== VALIDAÇÕES =====
 function validarCPF(cpf) {
   if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -329,13 +374,14 @@ function validarTelefone(tel) {
 
 // Mostra/remove a mensagem de erro logo abaixo do campo
 function setErro(el, msg) {
-  let m = el.parentElement.querySelector(':scope > .erro-msg');
+  const alvo = el.closest('.cs') || el;   // lista personalizada: a mensagem vai depois dela
+  let m = alvo.parentElement.querySelector(':scope > .erro-msg');
   if (!msg) {
     if (m) m.remove();
     el.classList.remove('invalido'); el.removeAttribute('aria-invalid');
     return;
   }
-  if (!m) { m = document.createElement('div'); m.className = 'erro-msg'; m.setAttribute('role', 'alert'); el.insertAdjacentElement('afterend', m); }
+  if (!m) { m = document.createElement('div'); m.className = 'erro-msg'; m.setAttribute('role', 'alert'); alvo.insertAdjacentElement('afterend', m); }
   m.textContent = msg;
   el.classList.add('invalido'); el.setAttribute('aria-invalid', 'true');
 }
@@ -362,11 +408,13 @@ function erroDoCampo(el) {
       return validarTelefone(v) ? '' : 'Telefone inválido. Use DDD + número, ex.: (11) 99999-9999 ou (11) 3333-4444. Para outro país, use + e o código, ex.: +351 912 345 678.';
     case 'dataAdmissao':
       return new Date(v) > new Date() ? 'A data de admissão não pode ser futura.' : '';
-    case 'dataNascimentoResponsavel':
-      return new Date(v) > new Date() ? 'A data de nascimento não pode ser futura.' : '';
-    case 'dataNascimento':
-      if (new Date(v) > new Date()) return 'A data de nascimento não pode ser futura.';
-      return new Date().getFullYear() - new Date(v).getFullYear() < 4 ? 'O bolsista deve ter pelo menos 4 anos de idade.' : '';
+    case 'dataNascimento': case 'dataNascimentoResponsavel': {
+      const d = parseBR(v);
+      if (!d || d.getFullYear() < 1900) return 'Data inválida. Use o formato dd/mm/aaaa.';
+      if (d > hoje) return 'A data de nascimento não pode ser futura.';
+      if (d > DATA_MAX) return (el.name === 'dataNascimento' ? 'O bolsista' : 'O responsável') + ' deve ter pelo menos 4 anos de idade.';
+      return '';
+    }
   }
   return '';
 }
@@ -380,8 +428,9 @@ function validarFormulario() {
     if (msg && !primeiro) primeiro = el;
   });
   if (!primeiro) return true;
-  primeiro.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  primeiro.focus({ preventScroll: true });
+  const foco = (primeiro.closest('.cs') && primeiro.closest('.cs').querySelector('.cs-btn')) || primeiro;
+  foco.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  foco.focus({ preventScroll: true });
   return false;
 }
 
@@ -397,6 +446,7 @@ form.addEventListener('submit', async e => {
   dados.enderecoResponsavel = montarEndereco(dados, 'resp');   // usado na tela de confirmação
   if (dados.parentesco === 'Outro' && dados.parentescoOutro) dados.parentesco = 'Outro - ' + dados.parentescoOutro;
   delete dados.parentescoOutro;
+  ['dataNascimento', 'dataNascimentoResponsavel'].forEach(k => dados[k] = isoDeBR(dados[k]));
 
   mostrarTela('viewLoading');
   try {
@@ -498,7 +548,10 @@ form.elements.celularResponsavel.addEventListener('input', mascaraTelefone);
 form.elements.celularBolsista.addEventListener('input', mascaraTelefone);
 
 // Ao sair do campo: valida. Enquanto digita: só limpa o erro quando for corrigido.
-form.addEventListener('focusout', e => { if (e.target.name) setErro(e.target, erroDoCampo(e.target)); });
+form.addEventListener('focusout', e => {
+  if (e.relatedTarget && dpPop.contains(e.relatedTarget)) return;   // foi para o seletor de data
+  if (e.target.name) setErro(e.target, erroDoCampo(e.target));
+});
 ['input', 'change'].forEach(ev => form.addEventListener(ev, e => {
   if (e.target.name && (e.target.classList.contains('invalido') || ev === 'change')) setErro(e.target, erroDoCampo(e.target));
 }));
@@ -511,7 +564,7 @@ function sincronizarEndereco() {
     const bol = form.elements['bol' + c];
     if (igual) bol.value = form.elements['resp' + c].value;
     bol.classList.toggle('travado', igual);
-    if (bol.tagName === 'SELECT') bol.tabIndex = igual ? -1 : 0; else bol.readOnly = igual;
+    if (bol.tagName === 'SELECT') { bol.tabIndex = igual ? -1 : 0; if (bol._csAtualizar) bol._csAtualizar(); } else bol.readOnly = igual;
     if (igual) setErro(bol, '');
   });
 }
@@ -530,6 +583,178 @@ function atualizarDestino() {
   if (['destinoComunicacao', 'emailBolsista', 'emailPedagogico'].includes(n)) atualizarDestino();
 }));
 form.addEventListener('reset', () => setTimeout(() => { sincronizarEndereco(); atualizarDestino(); }));
+
+// Seletor de data de nascimento: ano -> mês -> dia (abre ao clicar no campo)
+const dpPop = document.createElement('div');
+dpPop.className = 'dp'; dpPop.hidden = true;
+let dpAtivo = null;
+const dpFechar = () => { dpPop.hidden = true; dpAtivo = null; };
+
+function dpAbrir(el) {
+  if (dpAtivo && dpAtivo.el === el) return;
+  const atual = parseBR(el.value);
+  dpAtivo = { el, step: 'ano', ano: atual ? atual.getFullYear() : null, mes: null };
+  el.insertAdjacentElement('afterend', dpPop);
+  dpPop.style.top = (el.offsetTop + el.offsetHeight + 6) + 'px';
+  dpPop.hidden = false;
+  dpRender();
+  dpPop.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function dpRender() {
+  const { step, ano, mes } = dpAtivo, maxA = DATA_MAX.getFullYear();
+  let topo = '', itens = '';
+  if (step === 'ano') {
+    topo = '<strong>Selecione o ano</strong>';
+    for (let a = maxA; a >= hoje.getFullYear() - 100; a--)
+      itens += `<button type="button" data-a="${a}"${a === ano ? ' class="sel"' : ''}>${a}</button>`;
+  } else if (step === 'mes') {
+    topo = `<button type="button" class="dp-voltar" data-voltar="ano">‹ ${ano}</button><strong>Selecione o mês</strong>`;
+    MESES.forEach((n, i) => {
+      const off = ano === maxA && i > DATA_MAX.getMonth();
+      itens += `<button type="button" data-m="${i}"${off ? ' disabled' : ''}>${n}</button>`;
+    });
+  } else {
+    topo = `<button type="button" class="dp-voltar" data-voltar="mes">‹ ${MESES[mes]}/${ano}</button><strong>Selecione o dia</strong>`;
+    for (let d = 1, n = new Date(ano, mes + 1, 0).getDate(); d <= n; d++) {
+      const off = ano === maxA && mes === DATA_MAX.getMonth() && d > DATA_MAX.getDate();
+      itens += `<button type="button" data-d="${d}"${off ? ' disabled' : ''}>${d}</button>`;
+    }
+  }
+  dpPop.innerHTML = `<div class="dp-topo">${topo}</div><div class="dp-grid ${{ ano: 'anos', mes: 'meses', dia: 'dias' }[step]}">${itens}</div>`;
+  const g = dpPop.querySelector('.dp-grid'), sel = g.querySelector('.sel');
+  if (sel) g.scrollTop = sel.offsetTop - g.clientHeight / 2;   // mostra o ano já escolhido
+}
+
+dpPop.addEventListener('mousedown', e => e.preventDefault());   // mantém o foco no campo (evita erro piscando)
+dpPop.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b || b.disabled || !dpAtivo) return;
+  const s = dpAtivo;
+  if (b.dataset.a) { s.ano = +b.dataset.a; s.step = 'mes'; dpRender(); }
+  else if (b.dataset.m) { s.mes = +b.dataset.m; s.step = 'dia'; dpRender(); }
+  else if (b.dataset.voltar) { s.step = b.dataset.voltar; dpRender(); }
+  else if (b.dataset.d) {
+    const el = s.el;
+    el.value = `${pad(b.dataset.d)}/${pad(s.mes + 1)}/${s.ano}`;
+    dpFechar();
+    ['input', 'change'].forEach(t => el.dispatchEvent(new Event(t, { bubbles: true })));
+  }
+});
+form.addEventListener('click', e => { if (e.target.classList && e.target.classList.contains('dp-input')) dpAbrir(e.target); });
+form.addEventListener('focusin', e => {
+  if (e.target.classList.contains('dp-input')) dpAbrir(e.target);
+  else if (!dpPop.contains(e.target)) dpFechar();
+});
+document.addEventListener('mousedown', e => { if (dpAtivo && !dpPop.contains(e.target) && e.target !== dpAtivo.el) dpFechar(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && dpAtivo) dpFechar(); });
+form.addEventListener('reset', dpFechar);
+// Digitação com máscara dd/mm/aaaa (no celular o teclado não abre: use o seletor)
+form.addEventListener('input', e => {
+  if (!/^dataNascimento/.test(e.target.name)) return;
+  if (e.inputType) dpFechar();
+  let v = e.target.value.replace(/\D/g, '').slice(0, 8);
+  if (v.length > 4) v = v.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3');
+  else if (v.length > 2) v = v.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+  e.target.value = v;
+});
+
+// ===== LISTAS SUSPENSAS PERSONALIZADAS =====
+// O <select> original fica oculto e continua sendo a fonte do valor (validação, envio e regras não mudam).
+let csAberto = null;
+function csInit(sel) {
+  const cs = document.createElement('div'); cs.className = 'cs';
+  const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'cs-btn';
+  btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false');
+  const ul = document.createElement('ul'); ul.className = 'cs-list'; ul.setAttribute('role', 'listbox'); ul.hidden = true;
+  sel.replaceWith(cs); cs.append(sel, btn, ul);
+  sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
+  let ativo = -1, itens = [];
+
+  const atualizar = () => {
+    const op = sel.options[sel.selectedIndex];
+    btn.textContent = op ? op.textContent : '';
+    btn.classList.toggle('vazio', !sel.value);
+    btn.disabled = sel.disabled || sel.classList.contains('travado');
+  };
+  const marcar = (i, rolar = true) => {
+    ativo = i;
+    [...ul.children].forEach((li, k) => li.classList.toggle('ativo', k === i));
+    const li = ul.children[i];
+    if (li && rolar) {
+      if (li.offsetTop < ul.scrollTop) ul.scrollTop = li.offsetTop;
+      else if (li.offsetTop + li.offsetHeight > ul.scrollTop + ul.clientHeight) ul.scrollTop = li.offsetTop + li.offsetHeight - ul.clientHeight;
+    }
+  };
+  const fechar = () => {
+    ul.hidden = true; cs.classList.remove('aberto', 'acima'); btn.setAttribute('aria-expanded', 'false');
+    if (csAberto === cs) csAberto = null;
+  };
+  cs._fechar = fechar;
+  const abrir = () => {
+    if (btn.disabled) return;
+    if (csAberto && csAberto !== cs) csAberto._fechar();
+    itens = [...sel.options].filter(o => o.value !== '');   // ignora o texto "Selecione..."
+    ul.innerHTML = itens.length
+      ? itens.map(o => `<li role="option" data-v="${esc(o.value)}" aria-selected="${o.value === sel.value}">${esc(o.textContent)}</li>`).join('')
+      : '<li class="vazio-msg">Nenhuma opção disponível</li>';
+    ul.hidden = false; cs.classList.add('aberto'); btn.setAttribute('aria-expanded', 'true'); csAberto = cs;
+    const r = btn.getBoundingClientRect();   // abre para cima se faltar espaço embaixo
+    cs.classList.toggle('acima', window.innerHeight - r.bottom < ul.offsetHeight + 16 && r.top > ul.offsetHeight + 16);
+    if (itens.length) marcar(Math.max(0, itens.findIndex(o => o.value === sel.value)));
+  };
+  const escolher = i => {
+    const o = itens[i];
+    if (!o) return;
+    sel.value = o.value; fechar(); atualizar();
+    ['input', 'change'].forEach(t => sel.dispatchEvent(new Event(t, { bubbles: true })));
+    btn.focus();
+  };
+
+  btn.addEventListener('click', e => { if (e.detail === 0) return; ul.hidden ? abrir() : fechar(); btn.focus(); });
+  ul.addEventListener('mousedown', e => e.preventDefault());   // mantém o foco no botão
+  ul.addEventListener('click', e => { const li = e.target.closest('li[data-v]'); if (li) escolher([...ul.children].indexOf(li)); });
+  ul.addEventListener('mousemove', e => {
+    const li = e.target.closest('li[data-v]'), i = li ? [...ul.children].indexOf(li) : -1;
+    if (i >= 0 && i !== ativo) marcar(i, false);
+  });
+  btn.addEventListener('keydown', e => {
+    const aberto = !ul.hidden, k = e.key;
+    if (k === 'ArrowDown' || k === 'ArrowUp') {
+      e.preventDefault();
+      if (!aberto) abrir(); else marcar(Math.min(itens.length - 1, Math.max(0, ativo + (k === 'ArrowDown' ? 1 : -1))));
+    } else if (k === 'Home' || k === 'End') {
+      if (aberto) { e.preventDefault(); marcar(k === 'Home' ? 0 : itens.length - 1); }
+    } else if (k === 'Enter' || k === ' ') {
+      e.preventDefault(); aberto ? escolher(ativo) : abrir();
+    } else if (k === 'Escape') {
+      if (aberto) { e.preventDefault(); fechar(); }
+    } else if (k === 'Tab') {
+      if (aberto) fechar();
+    } else if (k.length === 1 && /\S/.test(k)) {   // digitar a primeira letra pula para a opção
+      if (!aberto) abrir();
+      const n = itens.length, c = k.toLowerCase();
+      for (let d = 1; d <= n; d++) {
+        const i = (ativo + d) % n;
+        if (itens[i].textContent.trim().toLowerCase().startsWith(c)) { marcar(i); break; }
+      }
+    }
+  });
+  btn.addEventListener('keyup', e => { if (e.key === ' ') e.preventDefault(); });
+  cs.addEventListener('focusout', e => {   // ao sair da lista: fecha e valida (como os outros campos)
+    if (cs.contains(e.relatedTarget)) return;
+    fechar();
+    setErro(sel, erroDoCampo(sel));
+  });
+
+  sel.addEventListener('change', atualizar);
+  new MutationObserver(atualizar).observe(sel, { childList: true, attributes: true, attributeFilter: ['disabled', 'class'] });
+  sel._csAtualizar = atualizar;   // para atualizar quando o valor é trocado por código
+  atualizar();
+}
+document.addEventListener('mousedown', e => { if (csAberto && !csAberto.contains(e.target)) csAberto._fechar(); });
+form.querySelectorAll('select').forEach(csInit);
+form.addEventListener('reset', () => setTimeout(() => form.querySelectorAll('select').forEach(x => x._csAtualizar())));
 
 function atualizarParentesco() {
   const outro = form.elements.parentesco.value === 'Outro', campo = form.elements.parentescoOutro;
