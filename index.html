@@ -89,7 +89,17 @@ input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 
         </div>
         <div class="form-group"><label>Nome Completo do Colaborador Responsável <span class="required">*</span></label><input type="text" name="nomeResponsavel" required></div>
         <div class="form-row">
-          <div class="form-group"><label>E-mail do Responsável Pedagógico</label><input type="email" name="emailPedagogico" placeholder="email@exemplo.com"><div class="hint">Não usar e-mail @cna. Deve ser diferente do e-mail do bolsista.</div></div>
+          <div class="form-group"><label>Gênero <span class="required">*</span></label>
+            <select name="generoResponsavel" required><option value="">Selecione...</option><option>Masculino</option><option>Feminino</option><option>Outro</option><option>Prefiro não informar</option></select></div>
+          <div class="form-group"><label>Estado Civil <span class="required">*</span></label>
+            <select name="estadoCivilResponsavel" required><option value="">Selecione...</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option><option>União Estável</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>CPF do Responsável <span class="required">*</span></label><input type="text" name="cpfResponsavel" placeholder="000.000.000-00" maxlength="14" required></div>
+          <div class="form-group"><label>Data de Nascimento <span class="required">*</span></label><input type="date" name="dataNascimentoResponsavel" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>E-mail do Responsável Pedagógico</label><input type="email" name="emailPedagogico" placeholder="email@exemplo.com"><div class="hint">Não usar e-mail @cna.</div></div>
           <div class="form-group"><label>Local de Trabalho/Departamento <span class="required">*</span></label><input type="text" name="localTrabalho" required></div>
         </div>
         <div class="form-group"><label>Qual o seu grau de parentesco com o bolsista? <span class="required">*</span></label>
@@ -114,7 +124,7 @@ input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 
         <div id="endBolsista"></div>
         <div class="form-row">
           <div class="form-group"><label>Telefone/Celular do Bolsista</label><input type="tel" name="celularBolsista" placeholder="(11) 99999-9999"><div class="hint">Outro país? Comece com + (ex.: +351 912 345 678).</div></div>
-          <div class="form-group"><label>E-mail do Bolsista <span class="required">*</span></label><input type="email" name="emailBolsista" placeholder="email@exemplo.com" required><div class="hint">Deve ser diferente do e-mail do responsável. Não usar e-mail @cna.</div></div>
+          <div class="form-group"><label>E-mail do Bolsista <span class="required">*</span></label><input type="email" name="emailBolsista" placeholder="email@exemplo.com" required><div class="hint">Não usar e-mail @cna.</div></div>
         </div>
         <div class="form-group"><label>Necessidade Educacional Específica</label><textarea name="necessidadeEspecial" placeholder="Descreva se houver alguma necessidade especial"></textarea></div>
       </div>
@@ -152,7 +162,7 @@ input.invalido:focus,select.invalido:focus,textarea.invalido:focus{box-shadow:0 
 <script>
 // ===== CONFIGURAÇÃO =====
 // Cole aqui a URL do Web App (termina em /exec)
-const API_URL = 'https://script.google.com/macros/s/AKfycbwuanHAiXfSzmLyWkjKl8xSPG__UIfkLLZC3JuCu7pZ7BOTcAwT4_Ui6h4kZxdweE_F/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycby0z66sbeq92nwXvBgP5-Dp1bfiYVm8hq-6GOIImA8sdrDYbKgA6JyAIbHI3y4Q1CJ3/exec';
 
 // ===== HELPERS =====
 const $ = id => document.getElementById(id);
@@ -338,15 +348,11 @@ function erroDoCampo(el) {
   if (el.required && !v) return el.tagName === 'SELECT' ? 'Selecione uma opção.' : 'Preencha este campo.';
   if (!v) return '';
   switch (el.name) {
-    case 'cpf':
+    case 'cpf': case 'cpfResponsavel':
       return validarCPF(v.replace(/\D/g, '')) ? '' : 'CPF inválido. Verifique o número informado.';
     case 'emailBolsista': case 'emailPedagogico':
       if (!validarEmail(v)) return 'E-mail inválido. Verifique o endereço informado.';
-      if (ehEmailCna(v)) return 'Não é permitido e-mail @cna. Use um e-mail pessoal.';
-      const outro = form.elements[el.name === 'emailBolsista' ? 'emailPedagogico' : 'emailBolsista'].value.trim().toLowerCase();
-      if (outro && outro === v.toLowerCase())
-        return el.name === 'emailBolsista' ? 'Não pode ser igual ao e-mail do responsável pedagógico.' : 'Não pode ser igual ao e-mail do bolsista.';
-      return '';
+      return ehEmailCna(v) ? 'Não é permitido e-mail @cna. Use um e-mail pessoal.' : '';
     case 'destinoComunicacao':
       return v === 'Responsável' && !form.elements.emailPedagogico.value.trim()
         ? 'Para usar o e-mail do responsável, preencha o "E-mail do Responsável Pedagógico" acima.' : '';
@@ -356,6 +362,8 @@ function erroDoCampo(el) {
       return validarTelefone(v) ? '' : 'Telefone inválido. Use DDD + número, ex.: (11) 99999-9999 ou (11) 3333-4444. Para outro país, use + e o código, ex.: +351 912 345 678.';
     case 'dataAdmissao':
       return new Date(v) > new Date() ? 'A data de admissão não pode ser futura.' : '';
+    case 'dataNascimentoResponsavel':
+      return new Date(v) > new Date() ? 'A data de nascimento não pode ser futura.' : '';
     case 'dataNascimento':
       if (new Date(v) > new Date()) return 'A data de nascimento não pode ser futura.';
       return new Date().getFullYear() - new Date(v).getFullYear() < 4 ? 'O bolsista deve ter pelo menos 4 anos de idade.' : '';
@@ -435,7 +443,7 @@ function mostrarConfirmacao(protocolo, d) {
     ${card('👤 Dados do Bolsista', [['📝 Nome:', b.nome], ['🆔 CPF:', fmtCPF(b.cpf)], ['📧 E-mail:', b.email], ['📬 Comunicações para:', b.emailComunicacao],
       ['📱 Celular:', fmtTel(b.celular)], ['📅 Nascimento:', dataBr(b.dataNascimento)], ['👥 Gênero:', b.genero],
       ['💒 Estado Civil:', b.estadoCivil], ['📍 Endereço:', b.endereco], ['♿ Necessidade Especial:', b.necessidadeEspecial]])}
-    ${card('👨‍💼 Responsável', [['📝 Nome:', r.nome], ['📱 Celular:', fmtTel(r.celular)], ['🏢 Departamento:', r.localTrabalho],
+    ${card('👨‍💼 Responsável', [['📝 Nome:', r.nome], ['🆔 CPF:', fmtCPF(r.cpf)], ['📅 Nascimento:', dataBr(r.dataNascimento)], ['👥 Gênero:', r.genero], ['💒 Estado Civil:', r.estadoCivil], ['📱 Celular:', fmtTel(r.celular)], ['🏢 Departamento:', r.localTrabalho],
       ['📅 Data Admissão:', dataBr(r.dataAdmissao)], ['📧 E-mail Pedagógico:', r.emailPedagogico], ['👪 Parentesco:', r.parentesco], ['📍 Endereço:', r.endereco]])}
     <div class="button-container"><button type="button" class="btn-primary" id="btnNova">Fazer nova inscrição</button></div>`;
   $('btnNova').addEventListener('click', novaInscricao);
@@ -460,7 +468,8 @@ $('btnLimpar').addEventListener('click', async () => {
   $('turma').innerHTML = '<option value="">Primeiro selecione o nível</option>';
 });
 
-form.elements.cpf.addEventListener('input', e => {
+form.addEventListener('input', e => {
+  if (!/^cpf/.test(e.target.name)) return;
   let v = e.target.value.replace(/\D/g, '').slice(0, 11);
   if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
   else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
@@ -487,20 +496,6 @@ function mascaraTelefone(e) {
 }
 form.elements.celularResponsavel.addEventListener('input', mascaraTelefone);
 form.elements.celularBolsista.addEventListener('input', mascaraTelefone);
-
-const EMAILS = ['emailBolsista', 'emailPedagogico'];
-const emailsIguais = () => {
-  const a = form.elements.emailBolsista.value.trim().toLowerCase(), b = form.elements.emailPedagogico.value.trim().toLowerCase();
-  return a !== '' && a === b;
-};
-['input', 'change', 'focusout'].forEach(ev => form.addEventListener(ev, e => {
-  if (!EMAILS.includes(e.target.name)) return;
-  EMAILS.forEach(n => {
-    const el = form.elements[n];
-    // digitando: só reavalia se estiverem iguais ou se o campo já tinha erro (evita "e-mail inválido" no meio da digitação)
-    if (ev === 'input' ? (emailsIguais() || el.classList.contains('invalido')) : el.value.trim()) setErro(el, erroDoCampo(el));
-  });
-}));
 
 // Ao sair do campo: valida. Enquanto digita: só limpa o erro quando for corrigido.
 form.addEventListener('focusout', e => { if (e.target.name) setErro(e.target, erroDoCampo(e.target)); });
